@@ -1,0 +1,131 @@
+from _csv import writer
+from scipy.stats import norm
+import typing
+import csv
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+import numpy as np
+import random
+import math
+from sklearn import metrics
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.cluster import DBSCAN
+from sklearn import metrics
+
+choice = int(input("from 1 to 3 [ 1 = horizontal, 2 = vertical, 3 = tube] "))
+
+def generate_points(choice, num_points:int = 2000):
+
+    if choice == 1:
+        distribution_x = norm(loc=0, scale=50)
+        distribution_y = norm(loc=0, scale=50)
+        distribution_z = norm(loc=0.1, scale=0)
+
+    elif choice == 2:
+        distribution_x = norm(loc=0, scale=50)
+        distribution_y = norm(loc=0, scale=0)
+        distribution_z = norm(loc=0, scale=70)
+    elif choice == 3:
+        distribution_x = norm(loc=0, scale=10)
+        distribution_y = distribution_x
+        distribution_z = norm(loc=0, scale=70)
+    else:
+        print("Incorrect option")
+
+    x = distribution_x.rvs(size=num_points)
+    y = distribution_y.rvs(size=num_points)
+    z = distribution_z.rvs(size=num_points)
+
+    points = zip(x,y,z)
+    return points
+
+
+def read_from_csv():
+    with open('lidardata.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, y, z in reader:
+            yield float(x), float(y), float(z)
+
+def Ransac(points, threshold=0.1, max_iters=100):
+
+    n_points = points.shape[0]
+    inliners = []
+    eq = []
+
+    for it in range(max_iters):
+
+        while len(inliners) < 3:
+            random_index = random.randint(0, len(points) - 1)
+            point_inliner = inliners.append[random_index]
+
+
+        v1 = point_inliner[1, :] - point_inliner[0, :]
+        v2 = point_inliner[2, :] - point_inliner[0, :]
+        v3 = np.cross(v1, v2)
+
+        v3 = v3 / np.linalg.norm(v3)
+        k = -np.sum(np.multiply(v3, point_inliner[1, :]))
+        plane_eq = [v1[0], v2[1], v3[2], k]
+
+        point_id_inliner = []
+        dist_pt = (plane_eq[0] * point_inliner[:, 0] + plane_eq[1] * point_inliner[:, 1] +plane_eq[2] * point_inliner[:, 2] + plane_eq[3]) / np.sqrt(
+            plane_eq[0] ** 2 + plane_eq[1] ** 2 + plane_eq[2] ** 2)
+
+        point_id_inliner = np.where(np.abs(dist_pt) <= threshold)[0]
+        if (len(point_id_inliner) > len(best_inliers)):
+            best_eq = plane_eq
+            best_inliers = point_id_inliner
+        inliers = best_inliers
+        equation = best_eq
+
+    return equation, inliners
+def k_means_():
+    n_clusters = 3
+
+    X = np.array(pointcloud)
+
+    k_means = KMeans(n_clusters=n_clusters)
+    k_means = k_means.fit(X)
+    labels = k_means.predict(X)
+
+    red = labels == 0
+    green = labels == 1
+    blue = labels == 2
+
+    fig_2 = plt.figure()
+    ax_2 = fig_2.add_subplot(projection='3d')
+    ax_2.scatter(X[blue, 0], X[blue, 1], X[blue, 2], marker='o')
+    ax_2.scatter(X[green, 0], X[green, 1], X[green, 2], marker='o')
+    ax_2.scatter(X[red, 0], X[red, 1], X[red, 2], marker='o')
+    plt.show()
+
+
+def k_means_DBSCAN(data):
+    clustering = DBSCAN(eps=15, min_samples=10).fit(data)
+    labels = clustering.labels_
+
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    n_noise_ = list(labels).count(-1)
+
+    print('Clusters: %d' % n_clusters_)
+    print('Noise points %d' % n_noise_)
+
+
+if __name__ == '__main__':
+    # main()
+    point_cloud = generate_points(choice,2000)
+    with open('lidardata.csv', 'w', encoding='utf-8', newline='\n') as csvfile:
+        csvfilewriter = writer(csvfile)
+        for p in point_cloud:
+            csvfilewriter.writerow(p)
+
+    pointcloud = list(read_from_csv())
+    X, Y, Z = zip(*pointcloud)
+    k_means_()
+    data = np.array(pointcloud)
+    k_means_DBSCAN(data)
+    points = data
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(X, Y, Z)
+    plt.show()
