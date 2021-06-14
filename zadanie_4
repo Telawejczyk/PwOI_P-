@@ -30,12 +30,12 @@ In [ ]:
       model.compile(loss='categorical_crossentropy', optimalizer='sgd', metrics=['accuracy'])
       model.summary()
 In [ ]:
-# Network training 
-model.fit(X_train, y_train, epochs=100, batch_size=10, shuffle=True)
+      # Network training 
+      model.fit(X_train, y_train, epochs=100, batch_size=10, shuffle=True)
 In [ ]:
-#Network testing 
-    y_pred = model.predict(X_test)
-    y_pred_int = np.argmax(y_pred, axis=1)
-    y_test_int = np.argmax(y_test, axis=1)
-    cm = confusion_matrix(y_test_int, y_pred_int)
-    print(cm)
+      #Network testing 
+      y_pred = model.predict(X_test)
+      y_pred_int = np.argmax(y_pred, axis=1)
+      y_test_int = np.argmax(y_test, axis=1)
+      cm = confusion_matrix(y_test_int, y_pred_int)
+      print(cm)
